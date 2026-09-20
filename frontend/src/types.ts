@@ -8,6 +8,15 @@ export interface Shed {
   notes?: string | null
 }
 
+export interface PinMemo {
+  id: number
+  roomId: number
+  body: string
+  pinned: boolean
+  authorName: string
+  createdAt: string
+}
+
 export interface Room {
   id: number
   shedId: number
@@ -15,6 +24,7 @@ export interface Room {
   species: string
   capacityBags: number
   status: RoomStatus
+  pinMemos: PinMemo[]
 }
 
 export interface ClimateLog {

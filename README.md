@@ -47,9 +47,10 @@ docker compose up --build
 3. **Room 出菇室**：`shedId`、`roomCode`、`species`、`capacityBags`、`status(fruiting|idle|sanitize)`；同菇房 `roomCode` 唯一
 4. **ClimateLog 环境记录**：`roomId`、`recordedAt`、`tempC`、`humidityPct`、`co2Ppm`、`notes`；`humidityPct ∈ [1,100]`，否则 **400**
 5. **FlushHarvest 采收**：`roomId`、`harvestedAt`、`flushNo(≥1)`、`weightKg`、`grade(A|B|C)`、`operatorName`；`weightKg > 0`，否则 **400**
-6. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`
+6. **PinMemo 置顶备忘**：`roomId`、`body`、`pinned`、`authorName`、`createdAt`；`body` 去空白后 1–40 字，否则 **400**。**同室 pinned 为真最多 3 条**：第 4 条置顶（含取消后再钉）返回 **409**，响应体带 `roomId` 与 `currentPins`；计数与写入在同一事务，超限整单回滚不留脏数据。作者只能改自己的 `body`、钉/拆自己的备忘；admin 可改任意 `body` 并拆任何人的钉；fruiter 拆他人的钉返回 **403**。`GET /api/rooms` 每行 `pinMemos` 只含 pinned 为真的备忘，按 `createdAt` 倒序，与 `GET /api/pin-memos?roomId=<id>&pinned=1` 的顺序和条数一致。种子数据让 R-01 已钉满 3 条，可直接验证第 4 条 409
+7. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`
 
-各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除。
+各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除。PinMemo 另有 `PATCH /api/pin-memos/<id>`（改 `body` / 钉拆 `pinned`），无删除端点。
 
 ## 前端页面
 

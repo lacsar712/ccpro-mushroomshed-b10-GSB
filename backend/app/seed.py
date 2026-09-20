@@ -4,6 +4,7 @@ from app.auth import hash_password
 from app.database import SessionLocal
 from app.models.climate_log import ClimateLog
 from app.models.flush_harvest import FlushHarvest
+from app.models.pin_memo import PinMemo
 from app.models.room import Room
 from app.models.shed import Shed
 from app.models.user import User
@@ -77,6 +78,39 @@ def seed() -> None:
             db.flush()
 
             now = datetime.now(timezone.utc)
+            db.add_all(
+                [
+                    # R-01 已钉满 3 条（上限），再钉应返回 409
+                    PinMemo(
+                        room_id=r1.id,
+                        body="本周三统一补水，勿提前",
+                        pinned=True,
+                        author_name="场长",
+                        created_at=now - timedelta(hours=3),
+                    ),
+                    PinMemo(
+                        room_id=r1.id,
+                        body="二潮菇采后清料待消毒",
+                        pinned=True,
+                        author_name="出菇员",
+                        created_at=now - timedelta(hours=9),
+                    ),
+                    PinMemo(
+                        room_id=r1.id,
+                        body="门禁卡故障，进出登记",
+                        pinned=True,
+                        author_name="场长",
+                        created_at=now - timedelta(days=1),
+                    ),
+                    PinMemo(
+                        room_id=r3.id,
+                        body="杏鲍菇催蕾期勿开门",
+                        pinned=True,
+                        author_name="出菇员",
+                        created_at=now - timedelta(hours=5),
+                    ),
+                ]
+            )
             db.add_all(
                 [
                     ClimateLog(

@@ -264,6 +264,46 @@ th {
   color: var(--forest-mid);
 }
 
+.pin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 240px;
+}
+
+.pin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pin-body {
+  font-size: 13px;
+}
+
+.pin-author {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pin-form {
+  display: flex;
+  gap: 6px;
+}
+
+.pin-form input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.pin-item .btn,
+.pin-form .btn {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
 .badge.fruiting {
   background: #dceee0;
   color: #2a6b3f;

@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 
 from app.database import SessionLocal
+from app.models.pin_memo import PinMemo
 from app.models.room import Room
 from app.models.shed import Shed
 from app.schemas.room import RoomCreateSchema, RoomOutSchema
@@ -26,6 +27,20 @@ def list_rooms():
         if shed_id is not None:
             q = q.filter(Room.shed_id == shed_id)
         rows = q.order_by(Room.id).all()
+        room_ids = [r.id for r in rows]
+        pins_by_room = {rid: [] for rid in room_ids}
+        if room_ids:
+            # 与 GET /api/pin-memos?roomId&pinned=1 同一口径：仅 pinned，createdAt 倒序
+            memos = (
+                db.query(PinMemo)
+                .filter(PinMemo.room_id.in_(room_ids), PinMemo.pinned.is_(True))
+                .order_by(PinMemo.created_at.desc(), PinMemo.id.desc())
+                .all()
+            )
+            for m in memos:
+                pins_by_room.setdefault(m.room_id, []).append(m)
+        for r in rows:
+            r.pin_memos_view = pins_by_room.get(r.id, [])
         return jsonify(out_many.dump(rows))
     finally:
         db.close()
@@ -57,6 +72,7 @@ def create_room():
             db.rollback()
             return jsonify({"detail": "同菇房内出菇室编号已存在"}), 400
         db.refresh(item)
+        item.pin_memos_view = []
         return jsonify(out_schema.dump(item)), 201
     finally:
         db.close()

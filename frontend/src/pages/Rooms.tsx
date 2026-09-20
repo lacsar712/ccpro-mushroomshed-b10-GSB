@@ -17,6 +17,7 @@ export default function Rooms() {
   const [rows, setRows] = createSignal<Room[]>([])
   const [sheds, setSheds] = createSignal<Shed[]>([])
   const [form, setForm] = createSignal({ ...empty })
+  const [pinDrafts, setPinDrafts] = createSignal<Record<number, string>>({})
   const [error, setError] = createSignal('')
 
   async function load() {
@@ -31,6 +32,35 @@ export default function Rooms() {
   onMount(() => {
     load().catch((e) => setError(e.message))
   })
+
+  async function addPin(roomId: number) {
+    const body = (pinDrafts()[roomId] ?? '').trim()
+    if (!body) return
+    setError('')
+    try {
+      await api('/api/pin-memos', {
+        method: 'POST',
+        body: JSON.stringify({ roomId, body, pinned: true }),
+      })
+      setPinDrafts({ ...pinDrafts(), [roomId]: '' })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '置顶失败')
+    }
+  }
+
+  async function unpin(id: number) {
+    setError('')
+    try {
+      await api(`/api/pin-memos/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ pinned: false }),
+      })
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '拆钉失败')
+    }
+  }
 
   async function onSubmit(e: Event) {
     e.preventDefault()
@@ -141,6 +171,7 @@ export default function Rooms() {
               <th>品种</th>
               <th>容量</th>
               <th>状态</th>
+              <th>置顶备忘</th>
               <th />
             </tr>
           </thead>
@@ -155,6 +186,36 @@ export default function Rooms() {
                   <td>{r.capacityBags}</td>
                   <td>
                     <span class={statusBadge(r.status)}>{r.status}</span>
+                  </td>
+                  <td>
+                    <div class="pin-list">
+                      <For each={r.pinMemos}>
+                        {(m) => (
+                          <div class="pin-item">
+                            <span class="pin-body" title={`${m.authorName} · ${m.createdAt}`}>
+                              📌 {m.body}
+                              <span class="pin-author"> {m.authorName}</span>
+                            </span>
+                            <button type="button" class="btn ghost" onClick={() => unpin(m.id)}>
+                              拆钉
+                            </button>
+                          </div>
+                        )}
+                      </For>
+                      <div class="pin-form">
+                        <input
+                          placeholder="新置顶备忘(≤40字)"
+                          maxLength={40}
+                          value={pinDrafts()[r.id] ?? ''}
+                          onInput={(e) =>
+                            setPinDrafts({ ...pinDrafts(), [r.id]: e.currentTarget.value })
+                          }
+                        />
+                        <button type="button" class="btn ghost" onClick={() => addPin(r.id)}>
+                          钉住
+                        </button>
+                      </div>
+                    </div>
                   </td>
                   <td>
                     <button type="button" class="btn ghost" onClick={() => remove(r.id)}>

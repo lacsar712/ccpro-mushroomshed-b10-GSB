@@ -1,9 +1,10 @@
 from typing import List, Optional
 
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint, and_, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.models.pin_memo import PinMemo
 
 
 class Room(Base):
@@ -23,4 +24,15 @@ class Room(Base):
     )
     flush_harvests: Mapped[List["FlushHarvest"]] = relationship(
         "FlushHarvest", back_populates="room", cascade="all, delete-orphan"
+    )
+    pin_memos: Mapped[List["PinMemo"]] = relationship(
+        "PinMemo", back_populates="room", cascade="all, delete-orphan"
+    )
+    # 仅置顶、按创建时间倒序（与 GET /api/pin-memos?pinned=1 顺序一致）
+    pinned_memos: Mapped[List["PinMemo"]] = relationship(
+        "PinMemo",
+        primaryjoin=lambda: and_(Room.id == PinMemo.room_id, PinMemo.pinned == true()),
+        order_by=lambda: (PinMemo.created_at.desc(), PinMemo.id.desc()),
+        viewonly=True,
+        overlaps="pin_memos",
     )

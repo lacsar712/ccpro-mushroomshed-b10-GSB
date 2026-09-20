@@ -1,5 +1,7 @@
 from marshmallow import Schema, fields, validate
 
+from app.schemas.pin_memo import PinMemoOutSchema
+
 
 ROOM_STATUSES = ("fruiting", "idle", "sanitize")
 
@@ -19,3 +21,7 @@ class RoomOutSchema(Schema):
     species = fields.Str()
     capacity_bags = fields.Int(data_key="capacityBags")
     status = fields.Str()
+    # 仅置顶备忘，按 createdAt 倒序（与 GET /api/pin-memos?pinned=1 一致）
+    pin_memos = fields.List(
+        fields.Nested(PinMemoOutSchema), attribute="pinned_memos", data_key="pinMemos"
+    )

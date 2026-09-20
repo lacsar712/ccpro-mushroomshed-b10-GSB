@@ -4,6 +4,7 @@ from app.auth import hash_password
 from app.database import SessionLocal
 from app.models.climate_log import ClimateLog
 from app.models.flush_harvest import FlushHarvest
+from app.models.pin_memo import PinMemo
 from app.models.room import Room
 from app.models.shed import Shed
 from app.models.user import User
@@ -134,6 +135,35 @@ def seed() -> None:
                         weight_kg=55.2,
                         grade="A",
                         operator_name="出菇员",
+                    ),
+                    # R-01 置顶备忘已钉满 3 条（上限），另留 1 条已取消置顶的备忘
+                    PinMemo(
+                        room_id=r1.id,
+                        body="夜班注意保温",
+                        pinned=True,
+                        author_name="场长",
+                        created_at=now - timedelta(hours=3),
+                    ),
+                    PinMemo(
+                        room_id=r1.id,
+                        body="周三统一采二潮菇",
+                        pinned=True,
+                        author_name="出菇员",
+                        created_at=now - timedelta(hours=5),
+                    ),
+                    PinMemo(
+                        room_id=r1.id,
+                        body="通风口已校准",
+                        pinned=True,
+                        author_name="场长",
+                        created_at=now - timedelta(days=1),
+                    ),
+                    PinMemo(
+                        room_id=r1.id,
+                        body="旧菇架待检修",
+                        pinned=False,
+                        author_name="出菇员",
+                        created_at=now - timedelta(days=2),
                     ),
                 ]
             )

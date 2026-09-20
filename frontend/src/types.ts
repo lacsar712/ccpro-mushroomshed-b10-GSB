@@ -15,6 +15,23 @@ export interface Room {
   species: string
   capacityBags: number
   status: RoomStatus
+  pinMemos: PinMemo[]
+}
+
+export interface PinMemo {
+  id: number
+  roomId: number
+  body: string
+  pinned: boolean
+  authorName: string
+  createdAt: string
+}
+
+export interface CurrentUser {
+  id: number
+  username: string
+  role: string
+  displayName: string
 }
 
 export interface ClimateLog {

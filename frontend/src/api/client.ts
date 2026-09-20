@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'ms_token'
+const USER_KEY = 'ms_user'
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
@@ -10,6 +11,28 @@ export function setToken(token: string) {
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(USER_KEY)
+}
+
+export interface StoredUser {
+  id: number
+  username: string
+  role: string
+  displayName: string
+}
+
+export function getUser(): StoredUser | null {
+  const raw = localStorage.getItem(USER_KEY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as StoredUser
+  } catch {
+    return null
+  }
+}
+
+export function setUser(user: StoredUser) {
+  localStorage.setItem(USER_KEY, JSON.stringify(user))
 }
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -48,12 +71,7 @@ export async function login(username: string, password: string) {
   return api<{
     access_token: string
     token_type: string
-    user: {
-      id: number
-      username: string
-      role: string
-      displayName: string
-    }
+    user: StoredUser
   }>('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

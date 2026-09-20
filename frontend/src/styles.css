@@ -294,6 +294,119 @@ th {
   color: var(--mushroom-brown);
 }
 
+.memo-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  max-width: 320px;
+}
+
+.memo-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #f0ead8;
+  color: #7a6230;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memo-row td {
+  background: rgba(232, 239, 230, 0.45);
+}
+
+.memo-panel {
+  padding: 8px 4px;
+}
+
+.memo-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.memo-title {
+  font-weight: 600;
+  color: var(--forest-deep);
+}
+
+.memo-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.memo-form input[type='text'],
+.memo-form input:not([type]) {
+  flex: 1;
+  max-width: 420px;
+}
+
+.memo-pin-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.memo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.memo-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.memo-item.pinned {
+  border-left: 4px solid var(--moss);
+}
+
+.memo-body {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.memo-edit {
+  padding: 6px 10px;
+  max-width: 320px;
+}
+
+.memo-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.memo-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.memo-actions .btn {
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
 .login-page {
   min-height: 100vh;
   display: grid;

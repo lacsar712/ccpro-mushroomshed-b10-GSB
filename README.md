@@ -48,8 +48,9 @@ docker compose up --build
 4. **ClimateLog 环境记录**：`roomId`、`recordedAt`、`tempC`、`humidityPct`、`co2Ppm`、`notes`；`humidityPct ∈ [1,100]`，否则 **400**
 5. **FlushHarvest 采收**：`roomId`、`harvestedAt`、`flushNo(≥1)`、`weightKg`、`grade(A|B|C)`、`operatorName`；`weightKg > 0`，否则 **400**
 6. **Dashboard**：`shedTotal`、`fruitingRoomCount`、`climateLast24h`、`harvestKgLast7d`
+7. **PinMemo 置顶备忘**：`roomId`、`body`、`pinned`、`authorName`、`createdAt`；`body` 去空白后 1–40 字，否则 **400**。同室 `pinned=true` **上限 3 条**：第 4 条置顶返回 **409**，响应体带 `roomId` 与 `currentPins`；计数与写入在同一事务，失败整单回滚。取消置顶后可再钉。作者只能改自己的 `body`；admin 可改任意 `body`、也可把他人 `pinned` 打回假；fruiter 拆他人的钉返回 **403**。`GET /api/rooms` 每行 `pinMemos` 只含 `pinned=true`，按 `createdAt` 倒序，与 `GET /api/pin-memos?roomId=<id>&pinned=1` 的顺序和条数一致
 
-各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除。
+各实体 API：`GET/POST` 列表与创建、`DELETE` 按 ID 删除。PinMemo 为 `GET/POST /api/pin-memos`（`GET` 支持 `roomId`、`pinned` 过滤）与 `PATCH /api/pin-memos/<id>`（改 `body` / `pinned`），不提供删除——用取消置顶代替。
 
 ## 前端页面
 

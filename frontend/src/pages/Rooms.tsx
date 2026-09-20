@@ -1,6 +1,7 @@
 import { createSignal, onMount } from 'solid-js'
-import { For } from 'solid-js'
+import { For, Show } from 'solid-js'
 import { api } from '../api/client'
+import PinMemoPanel from '../components/PinMemoPanel'
 import type { Room, RoomStatus, Shed } from '../types'
 
 const statuses: RoomStatus[] = ['fruiting', 'idle', 'sanitize']
@@ -18,6 +19,7 @@ export default function Rooms() {
   const [sheds, setSheds] = createSignal<Shed[]>([])
   const [form, setForm] = createSignal({ ...empty })
   const [error, setError] = createSignal('')
+  const [openRoomId, setOpenRoomId] = createSignal<number | null>(null)
 
   async function load() {
     const [rooms, shedList] = await Promise.all([
@@ -141,27 +143,53 @@ export default function Rooms() {
               <th>品种</th>
               <th>容量</th>
               <th>状态</th>
+              <th>置顶备忘</th>
               <th />
             </tr>
           </thead>
           <tbody>
             <For each={rows()}>
               {(r) => (
-                <tr>
-                  <td>{r.id}</td>
-                  <td>{r.shedId}</td>
-                  <td>{r.roomCode}</td>
-                  <td>{r.species}</td>
-                  <td>{r.capacityBags}</td>
-                  <td>
-                    <span class={statusBadge(r.status)}>{r.status}</span>
-                  </td>
-                  <td>
-                    <button type="button" class="btn ghost" onClick={() => remove(r.id)}>
-                      删除
-                    </button>
-                  </td>
-                </tr>
+                <>
+                  <tr>
+                    <td>{r.id}</td>
+                    <td>{r.shedId}</td>
+                    <td>{r.roomCode}</td>
+                    <td>{r.species}</td>
+                    <td>{r.capacityBags}</td>
+                    <td>
+                      <span class={statusBadge(r.status)}>{r.status}</span>
+                    </td>
+                    <td>
+                      <div class="memo-cell">
+                        <For each={r.pinMemos}>
+                          {(m) => <span class="memo-chip">{m.body}</span>}
+                        </For>
+                        <button
+                          type="button"
+                          class="btn ghost"
+                          onClick={() =>
+                            setOpenRoomId(openRoomId() === r.id ? null : r.id)
+                          }
+                        >
+                          {`备忘 ${r.pinMemos.length}/3`}
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <button type="button" class="btn ghost" onClick={() => remove(r.id)}>
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                  <Show when={openRoomId() === r.id}>
+                    <tr class="memo-row">
+                      <td colSpan={8}>
+                        <PinMemoPanel roomId={r.id} onChanged={() => load()} />
+                      </td>
+                    </tr>
+                  </Show>
+                </>
               )}
             </For>
           </tbody>
